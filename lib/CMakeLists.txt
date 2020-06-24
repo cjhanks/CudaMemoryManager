@@ -1,0 +1,5 @@
+file(GLOB_RECURSE SOURCES_CC  *.cc)
+file(GLOB_RECURSE SOURCES_CU  *.cu)
+file(GLOB_RECURSE SOURCES_HH  *.hh)
+
+add_library(cmm SHARED ${SOURCES_CC} ${SOURCES_CU} ${SOURCES_HH})

@@ -1,5 +1,11 @@
 # CudaMemoryManager
 
+## Quickstart
+
+```
+$> cmake .. && make -j8
+```
+
 ## Problem
 
 CUDA memory management and synchronization is difficult to get right.
@@ -22,7 +28,6 @@ which complicate application development.
 2.  When migrating data between OS Threads and/or CUDA Streams, it can be
     difficult to ensure data has been appropriately synchronized.
 3.  Allocations pause the world, so it is desirable to avoid them.
-
 
 ## A Solution
 
