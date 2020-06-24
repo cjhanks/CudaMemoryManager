@@ -13,7 +13,7 @@ namespace cmm {
 class OpaquePointer {
  public:
   explicit OpaquePointer(std::size_t size);
-  virtual ~OpaquePointer();
+  ~OpaquePointer() = default;
 
   /// {
   OpaquePointer(OpaquePointer&& rhs);

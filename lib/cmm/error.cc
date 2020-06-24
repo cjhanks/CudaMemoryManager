@@ -342,4 +342,11 @@ Error::Throw(cudaError_t rc)
   throw Error(msg);
 }
 
+// -------------------------------------------------------------------------- //
+
+Canary::~Canary()
+{
+  Error::Check(cudaGetLastError());
+}
+
 } // ns cmm
