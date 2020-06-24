@@ -16,14 +16,22 @@ class StreamEvent {
   StreamEvent();
   ~StreamEvent();
 
+  // {
   StreamEvent(const StreamEvent&) = delete;
   StreamEvent&
   operator=(const StreamEvent&) = delete;
+  // }
 
+  // {
   StreamEvent(StreamEvent&&);
   StreamEvent&
   operator=(StreamEvent&&);
+  // }
 
+  ///
+  /// Return true if the current event has completed, may throw an `cm::Error`
+  /// if an error has occurred on the underlying event.
+  ///
   bool
   IsComplete() const;
 

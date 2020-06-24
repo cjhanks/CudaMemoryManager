@@ -42,7 +42,7 @@ class DiscretizerNone : public Discretizer {
 /// Discretize by rounding up to the nearest `rounded_value` specified in the
 /// constructor.
 ///
-class DiscretizerRounding: public Discretizer {
+class DiscretizerRounding : public Discretizer {
  public:
   explicit DiscretizerRounding(std::size_t rounded_value);
 

@@ -28,6 +28,7 @@ class MemoryManager {
   std::unique_ptr<Discretizer> discretizer;
   std::thread thread_handle;
 
+  /// Launches the thread, this should be called by Install(...)
   void
   Start();
 };
