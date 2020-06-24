@@ -1,4 +1,4 @@
-# CudaMemoryManager
+# **C**uda **M**y **M**isery
 
 ## Quickstart
 
