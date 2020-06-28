@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "cmm/error.hh"
+#include "cmm/cmm.hh"
 
 
 TEST(Error, NoThrows) {

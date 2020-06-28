@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <cuda_runtime.h>
 
-#include "macro.hh"
+#include "cmm/macro.hh"
 
 namespace cmm {
 ///

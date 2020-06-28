@@ -3,8 +3,6 @@
 
 #include <cuda_runtime.h>
 
-#include "cmm.hh"
-
 namespace cmm {
 ///
 /// @class Stream
@@ -34,6 +32,7 @@ class Stream {
   cudaStream_t stream;
 };
 
+struct Specification;
 namespace bit {
 void
 InstallCudaStream(Specification& spec);

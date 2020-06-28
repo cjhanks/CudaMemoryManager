@@ -1,11 +1,11 @@
-#include "cmm.hh"
+#include "config.hh"
 
-#include "cmm/memory-bit.hh"
-#include "cmm/stream.hh"
+#include "cmm/memory.hh"
+#include "cmm/tools/stream.hh"
 
 namespace cmm {
 void
-Install(Specification specification)
+Install(Specification&& specification)
 {
   bit::InstallDiscretizer(std::move(specification.discretizer));
   bit::InstallCudaStream(specification);

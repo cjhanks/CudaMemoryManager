@@ -1,6 +1,7 @@
 #include "stream.hh"
 
-#include "cmm/error.hh"
+#include "cmm/config.hh"
+#include "cmm/tools/error.hh"
 
 namespace cmm {
 namespace bit {
