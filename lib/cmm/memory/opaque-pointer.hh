@@ -67,10 +67,24 @@ class PinnedMemory {
   PinnedMemory(void* ptr_gpu, void* ptr_cpu, std::size_t size);
 };
 
+///
+/// @class GpuMemory
+///
 class GpuMemory {
  public:
   GpuMemory();
   GpuMemory(std::size_t size);
+  ~GpuMemory();
+
+  /// {
+  GpuMemory(GpuMemory&& rhs);
+  GpuMemory&
+  operator=(GpuMemory&& rhs);
+
+  GpuMemory(const GpuMemory&) = delete;
+  GpuMemory&
+  operator=(const GpuMemory&) = delete;
+  /// }
 
   const void*
   PointerGPU() const;

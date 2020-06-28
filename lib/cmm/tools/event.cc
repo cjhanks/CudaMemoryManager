@@ -1,12 +1,22 @@
 #include "event.hh"
-#include "error.hh"
+
+#include <atomic>
+
+#include "cmm/tools/error.hh"
+#include "cmm/tools/stream.hh"
 
 namespace cmm {
+namespace {
+std::atomic<std::uint64_t> IdCounter(0);
+} // ns
+
 StreamEvent::StreamEvent()
-  : event(nullptr)
+  : event(nullptr),
+    id(IdCounter++)
 {
   static constexpr unsigned Flags = cudaEventDisableTiming;
   Error::Check(cudaEventCreateWithFlags(&event, Flags));
+  Error::Check(cudaEventRecord(event, Stream::This()));
 }
 
 StreamEvent::~StreamEvent()
@@ -28,6 +38,12 @@ StreamEvent::operator=(StreamEvent&& rhs)
   rhs.event = nullptr;
 
   return *this;
+}
+
+std::uint64_t
+StreamEvent::Id() const
+{
+  return id;
 }
 
 bool
