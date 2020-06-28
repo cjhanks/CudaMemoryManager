@@ -1,6 +1,7 @@
 #ifndef CMM_QUEUE_HH_
 #define CMM_QUEUE_HH_
 
+#include <atomic>
 #include <chrono>
 #include <condition_variable>
 #include <deque>
@@ -250,8 +251,6 @@ class RecvBlockingQueue {
     value = std::move(buffer.front());
     buffer.pop_front();
 
-    condition_pub.notify_one();
-
     return true;
   }
 
@@ -271,7 +270,6 @@ class RecvBlockingQueue {
   {
     closed = true;
     count = 0;
-    condition_pub.notify_all();
     condition_sub.notify_all();
   }
 

@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "cmm/error.hh"
-#include "cmm/event.hh"
+#include "cmm/cmm.hh"
 
 
 TEST(Event, Basic) {

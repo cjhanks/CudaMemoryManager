@@ -13,6 +13,9 @@ namespace cmm {
 ///
 class StreamEvent {
  public:
+  static StreamEvent
+  Create() { return StreamEvent(); }
+
   StreamEvent();
   ~StreamEvent();
 
