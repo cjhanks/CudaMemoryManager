@@ -1,7 +1,9 @@
 #include "opaque-pointer.hh"
 
-#include "cmm/tools/assert.hh"
 #include "cmm/memory.hh"
+#include "cmm/tools/assert.hh"
+#include "cmm/tools/error.hh"
+
 
 namespace cmm {
 PinnedMemory::PinnedMemory()
@@ -65,14 +67,18 @@ PinnedMemory::operator=(PinnedMemory&& rhs)
 const void*
 PinnedMemory::PointerGPU() const
 {
-  CMM_ASSERT(device == Device::GPU || !dirty);
+  if (device != Device::GPU && dirty)
+    throw Error("Requested GPU memory that is fresher on CPU");
+
   return ptr_gpu;
 }
 
 void*
 PinnedMemory::PointerGPU()
 {
-  CMM_ASSERT(device == Device::GPU || !dirty);
+  if (device != Device::GPU && dirty)
+    throw Error("Requested GPU memory that is fresher on CPU");
+
   dirty = true;
   return ptr_gpu;
 }
@@ -80,22 +86,27 @@ PinnedMemory::PointerGPU()
 const void*
 PinnedMemory::PointerCPU() const
 {
-  CMM_ASSERT(device == Device::CPU || !dirty);
+  if (device != Device::CPU && dirty)
+    throw Error("Requested GPU memory that is fresher on CPU");
+
   return ptr_cpu;
 }
 
 void*
 PinnedMemory::PointerCPU()
 {
-  CMM_ASSERT(device == Device::CPU || !dirty);
+  if (device != Device::CPU && dirty)
+    throw Error("Requested GPU memory that is fresher on CPU");
+
   dirty = true;
   return ptr_cpu;
 }
 
 void
-PinnedMemory::TransferToGPU()
+PinnedMemory::TransferToGPU(bool async)
 {
   if (device == Device::CPU && dirty) {
+    (void) async;
   }
 
   device = Device::GPU;
@@ -103,9 +114,10 @@ PinnedMemory::TransferToGPU()
 }
 
 void
-PinnedMemory::TransferToCPU()
+PinnedMemory::TransferToCPU(bool async)
 {
   if (device == Device::GPU && dirty) {
+    (void) async;
   }
 
   device = Device::CPU;
@@ -117,6 +129,17 @@ PinnedMemory::Size() const
 { return size; }
 
 // -------------------------------------------------------------------------- //
+
+GpuMemory::GpuMemory()
+  : ptr(nullptr),
+    size(0)
+{}
+
+GpuMemory::GpuMemory(std::size_t size)
+  : GpuMemory()
+{
+  *this = std::move(MemoryManager::Instance().NewGpu(size));
+}
 
 GpuMemory::GpuMemory(void* ptr, std::size_t size)
   : ptr(ptr),

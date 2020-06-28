@@ -41,10 +41,10 @@ class PinnedMemory {
 
   /// {
   void
-  TransferToGPU();
+  TransferToGPU(bool async=false);
 
   void
-  TransferToCPU();
+  TransferToCPU(bool async=false);
   /// }
 
   std::size_t
@@ -69,6 +69,9 @@ class PinnedMemory {
 
 class GpuMemory {
  public:
+  GpuMemory();
+  GpuMemory(std::size_t size);
+
   const void*
   PointerGPU() const;
 

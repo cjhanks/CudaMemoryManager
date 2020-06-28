@@ -3,6 +3,7 @@
 
 #include <deque>
 #include <memory>
+#include <mutex>
 #include <thread>
 #include <unordered_map>
 
@@ -33,6 +34,12 @@ struct PinnedMemorySegment {
 ///
 class PinnedMemorySegmentList {
  public:
+  PinnedMemorySegmentList(std::size_t size);
+
+  PinnedMemorySegmentList(PinnedMemorySegmentList&&);
+  PinnedMemorySegmentList&
+  operator=(PinnedMemorySegmentList&&);
+
   PinnedMemorySegment
   Next();
 
@@ -40,6 +47,7 @@ class PinnedMemorySegmentList {
   Return(void* ptr_gpu, void* ptr_cpu);
 
  private:
+  std::size_t size;
   std::deque<PinnedMemorySegment> segments;
   std::mutex mutex;
 };
@@ -51,6 +59,12 @@ using GpuMemorySegment = void*;
 ///
 class GpuMemorySegmentList {
  public:
+  GpuMemorySegmentList(std::size_t size);
+
+  GpuMemorySegmentList(GpuMemorySegmentList&&);
+  GpuMemorySegmentList&
+  operator=(GpuMemorySegmentList&&);
+
   GpuMemorySegment
   Next();
 
@@ -58,6 +72,7 @@ class GpuMemorySegmentList {
   Return(GpuMemorySegment ptr);
 
  private:
+  std::size_t size;
   std::deque<GpuMemorySegment> segments;
   std::mutex mutex;
 };
@@ -70,7 +85,8 @@ class MemoryManager {
   static MemoryManager&
   Instance();
 
-  MemoryManager() = default;
+  MemoryManager();
+  ~MemoryManager();
 
   void
   Install(std::unique_ptr<Discretizer>&& discretizer);
@@ -94,6 +110,7 @@ class MemoryManager {
  private:
   std::unique_ptr<Discretizer> discretizer;
   std::thread thread_handle;
+  std::atomic<bool> terminated;
 
   struct ReturnRecord {
     void*        ptr_gpu;
@@ -106,8 +123,10 @@ class MemoryManager {
   using PinMap = std::unordered_map<std::size_t, PinnedMemorySegmentList>;
   using GpuMap = std::unordered_map<std::size_t, GpuMemorySegmentList>;
 
-  PinMap pin_memory;
-  GpuMap gpu_memory;
+  PinMap     pin_memory;
+  std::mutex pin_memory_lock;
+  GpuMap     gpu_memory;
+  std::mutex gpu_memory_lock;
   bit::RecvBlockingQueue<ReturnRecord> returns;
 
   /// Launches the thread, this should be called by Install(...)

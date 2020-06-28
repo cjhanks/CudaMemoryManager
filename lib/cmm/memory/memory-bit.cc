@@ -5,13 +5,39 @@
 #include "cmm/tools/error.hh"
 #include "cmm/tools/stream.hh"
 
+#include "cmm/logging.hh"
+
 
 namespace cmm {
 // -------------------------------------------------------------------------- //
 
+GpuMemorySegmentList::GpuMemorySegmentList(std::size_t size)
+  : size(size)
+{
+}
+
+GpuMemorySegmentList::GpuMemorySegmentList(GpuMemorySegmentList&& rhs)
+{
+  *this = std::move(rhs);
+}
+
+GpuMemorySegmentList&
+GpuMemorySegmentList::operator=(GpuMemorySegmentList&& rhs)
+{
+  size = rhs.size;
+  segments = std::move(rhs.segments);
+  return *this;
+}
+
 GpuMemorySegment
 GpuMemorySegmentList::Next()
 {
+  if (segments.size() == 0) {
+    void* ptr = nullptr;
+    Error::Check(cudaMalloc(&ptr, size));
+    return ptr;
+  }
+
   std::lock_guard<std::mutex> lock(mutex);
   auto elem = segments.front();
   segments.pop_front();
@@ -27,9 +53,30 @@ GpuMemorySegmentList::Return(GpuMemorySegment ptr_gpu)
 
 // -------------------------------------------------------------------------- //
 
+PinnedMemorySegmentList::PinnedMemorySegmentList(std::size_t size)
+  : size(size)
+{
+}
+
+PinnedMemorySegmentList::PinnedMemorySegmentList(PinnedMemorySegmentList&& rhs)
+{
+  *this = std::move(rhs);
+}
+
+PinnedMemorySegmentList&
+PinnedMemorySegmentList::operator=(PinnedMemorySegmentList&& rhs)
+{
+  size = rhs.size;
+  segments = std::move(rhs.segments);
+  return *this;
+}
+
 PinnedMemorySegment
 PinnedMemorySegmentList::Next()
 {
+  if (segments.size() == 0) {
+  }
+
   std::lock_guard<std::mutex> lock(mutex);
   auto elem = segments.front();
   segments.pop_front();
@@ -67,6 +114,16 @@ InstallDiscretizer(std::unique_ptr<Discretizer>&& discretizer)
 }
 } // ns bit
 
+MemoryManager::MemoryManager()
+  : terminated(false)
+{}
+
+MemoryManager::~MemoryManager()
+{
+  terminated = true;
+  thread_handle.join();
+}
+
 void
 MemoryManager::Install(std::unique_ptr<Discretizer>&& discretizer)
 {
@@ -79,14 +136,22 @@ MemoryManager::Start()
 {
   thread_handle =
       std::move(std::thread(std::bind(&MemoryManager::Loop, this)));
-  thread_handle.detach();
 }
 
 PinnedMemory
 MemoryManager::NewPinned(std::size_t bytes)
 {
   std::size_t size = discretizer->Compute(bytes);
-  auto segment = pin_memory[size].Next();
+  pin_memory_lock.lock();
+  auto allocator = pin_memory.find(size);
+  if (allocator == pin_memory.end()) {
+    allocator = pin_memory.emplace(
+                  size,
+                  std::move(PinnedMemorySegmentList(size))).first;
+  }
+
+  auto segment = allocator->second.Next();
+  pin_memory_lock.unlock();
 
   return PinnedMemory(segment.ptr_gpu,
                       segment.ptr_cpu,
@@ -109,7 +174,16 @@ GpuMemory
 MemoryManager::NewGpu(std::size_t bytes)
 {
   std::size_t size = discretizer->Compute(bytes);
-  auto segment = gpu_memory[size].Next();
+  gpu_memory_lock.lock();
+  auto allocator = gpu_memory.find(size);
+  if (allocator == gpu_memory.end()) {
+    allocator = gpu_memory.emplace(
+                  size,
+                  std::move(GpuMemorySegmentList(size))).first;
+  }
+
+  auto segment = allocator->second.Next();
+  gpu_memory_lock.unlock();
   return GpuMemory(segment, bytes);
 }
 
@@ -125,7 +199,6 @@ MemoryManager::Free(GpuMemory& memory)
   returns.Push(std::move(record));
 }
 
-
 void
 MemoryManager::Loop()
 {
@@ -133,7 +206,7 @@ MemoryManager::Loop()
   using RecordMap = std::unordered_map<cudaStream_t, RecordList>;
 
   RecordMap record_map;
-  do {
+  while (!terminated) {
     // Look for records which should be returned to the pool and queue them in
     // their respective stream queue.
     ReturnRecord record;
@@ -149,15 +222,25 @@ MemoryManager::Loop()
         auto& elem = list.front();
 
         if (elem.ptr_cpu) {
-          pin_memory[elem.size].Return(elem.ptr_gpu, elem.ptr_cpu);
+          // It must be pinned memory.
+          pin_memory_lock.lock();
+          auto& pm = pin_memory.at(elem.size);
+          pin_memory_lock.unlock();
+
+          pm.Return(elem.ptr_gpu, elem.ptr_cpu);
         } else {
-          gpu_memory[elem.size].Return(elem.ptr_gpu);
+          // It must be gpu memory.
+          gpu_memory_lock.lock();
+          auto& gm = gpu_memory.at(elem.size);
+          gpu_memory_lock.unlock();
+
+          gm.Return(elem.ptr_gpu);
         }
 
         list.pop_front();
       }
     }
-  } while (true);
+  }
 }
 
 void
