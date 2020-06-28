@@ -1,6 +1,7 @@
 #ifndef CMM_EVENT_HH_
 #define CMM_EVENT_HH_
 
+#include <cstdint>
 #include <cuda_runtime.h>
 
 
@@ -18,6 +19,9 @@ class StreamEvent {
 
   StreamEvent();
   ~StreamEvent();
+
+  std::uint64_t
+  Id() const;
 
   // {
   StreamEvent(const StreamEvent&) = delete;
@@ -40,6 +44,7 @@ class StreamEvent {
 
  private:
   cudaEvent_t event;
+  std::uint64_t id;
 };
 } // ns cmm
 

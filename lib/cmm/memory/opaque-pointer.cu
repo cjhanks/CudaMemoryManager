@@ -135,10 +135,32 @@ GpuMemory::GpuMemory()
     size(0)
 {}
 
+GpuMemory::~GpuMemory()
+{
+  if (size)
+    MemoryManager::Instance().Free(*this);
+}
+
 GpuMemory::GpuMemory(std::size_t size)
   : GpuMemory()
 {
   *this = std::move(MemoryManager::Instance().NewGpu(size));
+}
+
+GpuMemory::GpuMemory(GpuMemory&& rhs)
+{
+  *this = std::move(rhs);
+}
+
+GpuMemory&
+GpuMemory::operator=(GpuMemory&& rhs)
+{
+  ptr = rhs.ptr;
+  size = rhs.size;
+  rhs.ptr = nullptr;
+  rhs.size = 0;
+
+  return *this;
 }
 
 GpuMemory::GpuMemory(void* ptr, std::size_t size)
