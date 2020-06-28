@@ -48,21 +48,56 @@ class TypedGpuMemory : public GpuMemory {
   }
 };
 
+template <typename Type>
+class TypedPinnedMemoryArray : public PinnedMemory {
+ public:
+  TypedPinnedMemoryArray()
+    : PinnedMemory() {}
+
+  TypedPinnedMemoryArray(std::size_t size)
+    : PinnedMemory(sizeof(Type) * size),
+      size(size)
+  {}
+
+  const Type*
+  PointerGPU() const
+  { return (const Type*) PinnedMemory::PointerGPU(); }
+
+  Type*
+  PointerGPU()
+  { return (Type*) PinnedMemory::PointerGPU(); }
+
+  const Type*
+  PointerCPU() const
+  { return (const Type*) PinnedMemory::PointerCPU(); }
+
+  Type*
+  PointerCPU()
+  { return (Type*) PinnedMemory::PointerCPU(); }
+
+  //std::size_t
+  //Size() const
+  //{ return size; }
+
+ private:
+  std::size_t size;
+};
+
 ///
 /// @class  TypedGpuMemory
 /// @tparam Type to store.
 ///
 //template <typename Type>
-//class TypedGpuMemory : public GpuMemory {
+//class TypedGpuMemoryArray : public GpuMemory {
 // public:
-//  TypedGpuMemory()
-//    : GpuMemory(sizeof(Type)) {}
+//  TypedGpuMemoryArray()
+//    : GpuMemory() {}
 //
-//  TypedGpuMemory(Type data)
-//    : GpuMemory(sizeof(Type))
-//  {
-//    this->Load((void*) &data);
-//  }
+//  TypedGpuMemoryArray(std::size_t size)
+//    : GpuMemory(sizeof(Type) * size) {}
+//
+// private:
+//  std::size_t size;
 //};
 } // ns cmm
 

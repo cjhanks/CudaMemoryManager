@@ -121,12 +121,13 @@ class MemoryManager {
   };
 
   using PinMap = std::unordered_map<std::size_t, PinnedMemorySegmentList>;
-  using GpuMap = std::unordered_map<std::size_t, GpuMemorySegmentList>;
-
   PinMap     pin_memory;
   std::mutex pin_memory_lock;
+
+  using GpuMap = std::unordered_map<std::size_t, GpuMemorySegmentList>;
   GpuMap     gpu_memory;
   std::mutex gpu_memory_lock;
+
   bit::RecvBlockingQueue<ReturnRecord> returns;
 
   /// Launches the thread, this should be called by Install(...)
@@ -140,7 +141,6 @@ class MemoryManager {
   void
   ValidateOrThrow() const;
 };
-
 } // ns cmm
 
 #endif // CMM_MEMORY_BIT_HH_
