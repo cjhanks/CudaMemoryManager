@@ -37,6 +37,12 @@ Stream::~Stream()
     Error::Check(cudaStreamDestroy(stream));
 }
 
+void
+Stream::Synchronize()
+{
+  Error::Check(cudaStreamSynchronize(stream));
+}
+
 Stream::operator cudaStream_t()
 { return stream; }
 

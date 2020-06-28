@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "cmm/cmm.hh"
+#include "cmm/logging.hh"
 
 TEST(MemoryManager, Basic) {
   // Will throw, since cmm has not been initialized.
@@ -41,4 +42,20 @@ TEST(MemoryManager, Basic) {
     ASSERT_EQ(gm1.Size(), 0);
     ASSERT_EQ(gm2.Size(), 100);
   } while (0);
+
+  do {
+    struct ThisThing {
+      unsigned a;
+      unsigned b;
+    };
+
+    cmm::TypedPinnedMemory<ThisThing> ptr;
+    ptr.PointerCPU()->a = 3;
+    ptr.PointerCPU()->b = 4;
+    ptr.TransferToGPU(false);
+
+    ASSERT_EQ(ptr.PointerCPU()->a, 3);
+    ASSERT_EQ(ptr.PointerCPU()->b, 4);
+  } while (0);
+
 }

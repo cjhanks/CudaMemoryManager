@@ -75,6 +75,10 @@ PinnedMemorySegment
 PinnedMemorySegmentList::Next()
 {
   if (segments.size() == 0) {
+    PinnedMemorySegment seg;
+    Error::Check(cudaHostAlloc(&seg.ptr_cpu, size, cudaHostAllocDefault));
+    Error::Check(cudaHostGetDevicePointer(&seg.ptr_gpu, seg.ptr_cpu, 0));
+    return seg;
   }
 
   std::lock_guard<std::mutex> lock(mutex);

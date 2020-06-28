@@ -1,8 +1,10 @@
 #include "opaque-pointer.hh"
 
+#include "cmm/logging.hh"
 #include "cmm/memory.hh"
 #include "cmm/tools/assert.hh"
 #include "cmm/tools/error.hh"
+#include "cmm/tools/stream.hh"
 
 
 namespace cmm {
@@ -27,7 +29,8 @@ PinnedMemory::PinnedMemory(void* ptr_gpu, void* ptr_cpu, std::size_t size)
     ptr_gpu(ptr_gpu),
     ptr_cpu(ptr_cpu),
     size(size)
-{}
+{
+}
 
 PinnedMemory::~PinnedMemory()
 {
@@ -79,6 +82,7 @@ PinnedMemory::PointerGPU()
   if (device != Device::GPU && dirty)
     throw Error("Requested GPU memory that is fresher on CPU");
 
+  device = Device::GPU;
   dirty = true;
   return ptr_gpu;
 }
@@ -98,6 +102,7 @@ PinnedMemory::PointerCPU()
   if (device != Device::CPU && dirty)
     throw Error("Requested GPU memory that is fresher on CPU");
 
+  device = Device::CPU;
   dirty = true;
   return ptr_cpu;
 }
@@ -106,7 +111,14 @@ void
 PinnedMemory::TransferToGPU(bool async)
 {
   if (device == Device::CPU && dirty) {
-    (void) async;
+    Error::Check(
+        cudaMemcpyAsync(ptr_gpu,
+                        ptr_cpu,
+                        size,
+                        cudaMemcpyDeviceToHost,
+                        Stream::This()));
+    if (!async)
+      Stream::This().Synchronize();
   }
 
   device = Device::GPU;
@@ -117,7 +129,14 @@ void
 PinnedMemory::TransferToCPU(bool async)
 {
   if (device == Device::GPU && dirty) {
-    (void) async;
+    Error::Check(
+        cudaMemcpyAsync(ptr_cpu,
+                        ptr_gpu,
+                        size,
+                        cudaMemcpyHostToDevice,
+                        Stream::This()));
+    if (!async)
+      Stream::This().Synchronize();
   }
 
   device = Device::CPU;
@@ -167,6 +186,18 @@ GpuMemory::GpuMemory(void* ptr, std::size_t size)
   : ptr(ptr),
     size(size)
 {}
+
+void
+GpuMemory::Load(void* ptr_cpu)
+{
+  Error::Check(
+        cudaMemcpyAsync(ptr_cpu,
+                        ptr,
+                        size,
+                        cudaMemcpyHostToDevice,
+                        Stream::This()));
+  Stream::This().Synchronize();
+}
 
 const void*
 GpuMemory::PointerGPU() const

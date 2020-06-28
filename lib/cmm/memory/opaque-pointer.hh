@@ -41,7 +41,7 @@ class PinnedMemory {
 
   /// {
   void
-  TransferToGPU(bool async=false);
+  TransferToGPU(bool async=true);
 
   void
   TransferToCPU(bool async=false);
@@ -85,6 +85,9 @@ class GpuMemory {
   GpuMemory&
   operator=(const GpuMemory&) = delete;
   /// }
+
+  void
+  Load(void* cpu_ptr);
 
   const void*
   PointerGPU() const;
