@@ -22,6 +22,9 @@ class Stream {
   Stream();
   ~Stream();
 
+  void
+  Synchronize();
+
   /// {
   /// Helpful implicit casting.
   operator cudaStream_t();
