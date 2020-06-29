@@ -12,7 +12,7 @@ template <typename Type_, std::size_t Dims_, typename MemoryArray_>
 class Matrix {
  public:
   // {
-  using Type = Type;
+  using Type = Type_;
   static constexpr std::size_t Dims = Dims_;
   using MemoryArray = MemoryArray_;
   using Self = Matrix<Type, Dims, MemoryArray>;
@@ -22,7 +22,7 @@ class Matrix {
   static Self
   ShapedLike(const RhsType& rhs)
   {
-    return Self(rhs.Indexer());
+    return Self(rhs.GetIndexer());
   }
 
   Matrix() = default;
@@ -79,14 +79,15 @@ class Matrix {
   void
   GpuBroadcast(Operation, RhsType value)
   {
+    auto rhs = ShapedLike(*this);
   }
 
   Indexer<Dims>
-  Indexer() const
+  GetIndexer() const
   { return indexer; }
 
  private:
-  Indexer<Dims> indexer;
+  cmm::Indexer<Dims> indexer;
   MemoryArray memory;
 };
 
