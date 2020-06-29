@@ -1,5 +1,5 @@
-#ifndef CMM_MEMORY_BIT_HH_
-#define CMM_MEMORY_BIT_HH_
+#ifndef CMM_MEMORY_MANAGER_HH_
+#define CMM_MEMORY_MANAGER_HH_
 
 #include <deque>
 #include <memory>
@@ -143,4 +143,4 @@ class MemoryManager {
 };
 } // ns cmm
 
-#endif // CMM_MEMORY_BIT_HH_
+#endif // CMM_MEMORY_MANAGER_HH_
