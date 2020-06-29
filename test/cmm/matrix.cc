@@ -50,5 +50,11 @@ TEST(Indexer, Basic3) {
 }
 
 TEST(Matrix, Basic) {
-  cmm::PinnedMatrix<float, 2> p0;
+  cmm::PinMatrix<float, 2> p0;
+  cmm::PinMatrix<float, 2> p1(100, 40);
+
+  ASSERT_EQ(p0.Size(),  0);
+  ASSERT_EQ(p1.Size(0), 100);
+  ASSERT_EQ(p1.Size(1), 40);
+  ASSERT_EQ(p1.Size(),  40 * 100);
 }

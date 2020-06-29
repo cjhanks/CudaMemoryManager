@@ -10,7 +10,7 @@ TEST(MemoryManager, Basic) {
 
   // - Test the pinned memory.
   do {
-    cmm::PinnedMemory pm1(100);
+    cmm::PinMemory pm1(100);
     ASSERT_EQ(pm1.Size(), 100);
 
     pm1.PointerCPU();
@@ -20,7 +20,7 @@ TEST(MemoryManager, Basic) {
     pm1.PointerGPU();
     EXPECT_THROW(pm1.PointerCPU(), cmm::Error);
 
-    cmm::PinnedMemory pm2 = std::move(pm1);
+    cmm::PinMemory pm2 = std::move(pm1);
     ASSERT_EQ(pm1.Size(), 0);
     ASSERT_EQ(pm2.Size(), 100);
   } while (0);
@@ -42,7 +42,7 @@ TEST(MemoryManager, Basic) {
       unsigned b;
     };
 
-    cmm::TypedPinnedMemory<ThisThing> ptr;
+    cmm::TypedPinMemory<ThisThing> ptr;
     ptr.PointerCPU()->a = 3;
     ptr.PointerCPU()->b = 4;
     ptr.TransferToGPU(false);

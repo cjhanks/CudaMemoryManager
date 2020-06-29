@@ -5,30 +5,30 @@
 
 namespace cmm {
 ///
-/// @class  TypedPinnedMemory
+/// @class  TypedPinMemory
 /// @tparam Type to store.
 ///
 template <typename Type>
-class TypedPinnedMemory : public PinnedMemory {
+class TypedPinMemory : public PinMemory {
  public:
-  TypedPinnedMemory()
-    : PinnedMemory(sizeof(Type)) {}
+  TypedPinMemory()
+    : PinMemory(sizeof(Type)) {}
 
   const Type*
   PointerGPU() const
-  { return (const Type*) PinnedMemory::PointerGPU(); }
+  { return (const Type*) PinMemory::PointerGPU(); }
 
   Type*
   PointerGPU()
-  { return (Type*) PinnedMemory::PointerGPU(); }
+  { return (Type*) PinMemory::PointerGPU(); }
 
   const Type*
   PointerCPU() const
-  { return (const Type*) PinnedMemory::PointerCPU(); }
+  { return (const Type*) PinMemory::PointerCPU(); }
 
   Type*
   PointerCPU()
-  { return (Type*) PinnedMemory::PointerCPU(); }
+  { return (Type*) PinMemory::PointerCPU(); }
 };
 
 ///
@@ -49,31 +49,31 @@ class TypedGpuMemory : public GpuMemory {
 };
 
 template <typename Type>
-class TypedPinnedMemoryArray : public PinnedMemory {
+class TypedPinMemoryArray : public PinMemory {
  public:
-  TypedPinnedMemoryArray()
-    : PinnedMemory() {}
+  TypedPinMemoryArray()
+    : PinMemory() {}
 
-  TypedPinnedMemoryArray(std::size_t size)
-    : PinnedMemory(sizeof(Type) * size),
+  TypedPinMemoryArray(std::size_t size)
+    : PinMemory(sizeof(Type) * size),
       size(size)
   {}
 
   const Type*
   PointerGPU() const
-  { return (const Type*) PinnedMemory::PointerGPU(); }
+  { return (const Type*) PinMemory::PointerGPU(); }
 
   Type*
   PointerGPU()
-  { return (Type*) PinnedMemory::PointerGPU(); }
+  { return (Type*) PinMemory::PointerGPU(); }
 
   const Type*
   PointerCPU() const
-  { return (const Type*) PinnedMemory::PointerCPU(); }
+  { return (const Type*) PinMemory::PointerCPU(); }
 
   Type*
   PointerCPU()
-  { return (Type*) PinnedMemory::PointerCPU(); }
+  { return (Type*) PinMemory::PointerCPU(); }
 
   std::size_t
   Size() const

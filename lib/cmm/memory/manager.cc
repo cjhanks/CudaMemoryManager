@@ -53,29 +53,29 @@ GpuMemorySegmentList::Return(GpuMemorySegment ptr_gpu)
 
 // -------------------------------------------------------------------------- //
 
-PinnedMemorySegmentList::PinnedMemorySegmentList(std::size_t size)
+PinMemorySegmentList::PinMemorySegmentList(std::size_t size)
   : size(size)
 {
 }
 
-PinnedMemorySegmentList::PinnedMemorySegmentList(PinnedMemorySegmentList&& rhs)
+PinMemorySegmentList::PinMemorySegmentList(PinMemorySegmentList&& rhs)
 {
   *this = std::move(rhs);
 }
 
-PinnedMemorySegmentList&
-PinnedMemorySegmentList::operator=(PinnedMemorySegmentList&& rhs)
+PinMemorySegmentList&
+PinMemorySegmentList::operator=(PinMemorySegmentList&& rhs)
 {
   size = rhs.size;
   segments = std::move(rhs.segments);
   return *this;
 }
 
-PinnedMemorySegment
-PinnedMemorySegmentList::Next()
+PinMemorySegment
+PinMemorySegmentList::Next()
 {
   if (segments.size() == 0) {
-    PinnedMemorySegment seg;
+    PinMemorySegment seg;
     Error::Check(cudaHostAlloc(&seg.ptr_cpu, size, cudaHostAllocDefault));
     Error::Check(cudaHostGetDevicePointer(&seg.ptr_gpu, seg.ptr_cpu, 0));
     return seg;
@@ -88,11 +88,11 @@ PinnedMemorySegmentList::Next()
 }
 
 void
-PinnedMemorySegmentList::Return(void* ptr_gpu, void* ptr_cpu)
+PinMemorySegmentList::Return(void* ptr_gpu, void* ptr_cpu)
 {
   std::lock_guard<std::mutex> lock(mutex);
   segments.emplace_back(
-      (PinnedMemorySegment) {.ptr_gpu = ptr_gpu,
+      (PinMemorySegment) {.ptr_gpu = ptr_gpu,
                              .ptr_cpu = ptr_cpu}
   );
 }
@@ -142,8 +142,8 @@ MemoryManager::Start()
       std::move(std::thread(std::bind(&MemoryManager::Loop, this)));
 }
 
-PinnedMemory
-MemoryManager::NewPinned(std::size_t bytes)
+PinMemory
+MemoryManager::NewPin(std::size_t bytes)
 {
   std::size_t size = discretizer->Compute(bytes);
   pin_memory_lock.lock();
@@ -151,19 +151,19 @@ MemoryManager::NewPinned(std::size_t bytes)
   if (allocator == pin_memory.end()) {
     allocator = pin_memory.emplace(
                   size,
-                  std::move(PinnedMemorySegmentList(size))).first;
+                  std::move(PinMemorySegmentList(size))).first;
   }
 
   auto segment = allocator->second.Next();
   pin_memory_lock.unlock();
 
-  return PinnedMemory(segment.ptr_gpu,
+  return PinMemory(segment.ptr_gpu,
                       segment.ptr_cpu,
                       bytes);
 }
 
 void
-MemoryManager::Free(PinnedMemory& memory)
+MemoryManager::Free(PinMemory& memory)
 {
   ReturnRecord record;
   record.ptr_gpu = memory.ptr_gpu;

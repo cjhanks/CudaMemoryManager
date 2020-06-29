@@ -8,7 +8,7 @@
 
 
 namespace cmm {
-PinnedMemory::PinnedMemory()
+PinMemory::PinMemory()
   : device(Device::CPU),
     dirty(false),
     ptr_gpu(nullptr),
@@ -17,14 +17,14 @@ PinnedMemory::PinnedMemory()
 {
 }
 
-PinnedMemory::PinnedMemory(std::size_t size)
-  : PinnedMemory()
+PinMemory::PinMemory(std::size_t size)
+  : PinMemory()
 {
   if (size)
-    *this = std::move(MemoryManager::Instance().NewPinned(size));
+    *this = std::move(MemoryManager::Instance().NewPin(size));
 }
 
-PinnedMemory::PinnedMemory(void* ptr_gpu, void* ptr_cpu, std::size_t size)
+PinMemory::PinMemory(void* ptr_gpu, void* ptr_cpu, std::size_t size)
   : device(Device::CPU),
     dirty(false),
     ptr_gpu(ptr_gpu),
@@ -33,14 +33,14 @@ PinnedMemory::PinnedMemory(void* ptr_gpu, void* ptr_cpu, std::size_t size)
 {
 }
 
-PinnedMemory::~PinnedMemory()
+PinMemory::~PinMemory()
 {
   if (size) {
     MemoryManager::Instance().Free(*this);
   }
 }
 
-PinnedMemory::PinnedMemory(PinnedMemory&& rhs)
+PinMemory::PinMemory(PinMemory&& rhs)
   : device(rhs.device),
     dirty(rhs.dirty),
     ptr_gpu(rhs.ptr_gpu),
@@ -52,8 +52,8 @@ PinnedMemory::PinnedMemory(PinnedMemory&& rhs)
   rhs.size    = 0;
 }
 
-PinnedMemory&
-PinnedMemory::operator=(PinnedMemory&& rhs)
+PinMemory&
+PinMemory::operator=(PinMemory&& rhs)
 {
   device  = rhs.device;
   dirty   = rhs.dirty;
@@ -69,7 +69,7 @@ PinnedMemory::operator=(PinnedMemory&& rhs)
 }
 
 const void*
-PinnedMemory::PointerGPU() const
+PinMemory::PointerGPU() const
 {
   if (device != Device::GPU && dirty)
     throw Error("Requested GPU memory that is fresher on CPU");
@@ -78,7 +78,7 @@ PinnedMemory::PointerGPU() const
 }
 
 void*
-PinnedMemory::PointerGPU()
+PinMemory::PointerGPU()
 {
   if (device != Device::GPU && dirty)
     throw Error("Requested GPU memory that is fresher on CPU");
@@ -89,7 +89,7 @@ PinnedMemory::PointerGPU()
 }
 
 const void*
-PinnedMemory::PointerCPU() const
+PinMemory::PointerCPU() const
 {
   if (device != Device::CPU && dirty)
     throw Error("Requested GPU memory that is fresher on CPU");
@@ -98,7 +98,7 @@ PinnedMemory::PointerCPU() const
 }
 
 void*
-PinnedMemory::PointerCPU()
+PinMemory::PointerCPU()
 {
   if (device != Device::CPU && dirty)
     throw Error("Requested GPU memory that is fresher on CPU");
@@ -109,7 +109,7 @@ PinnedMemory::PointerCPU()
 }
 
 void
-PinnedMemory::TransferToGPU(bool async)
+PinMemory::TransferToGPU(bool async)
 {
   if (device == Device::CPU && dirty) {
     Error::Check(
@@ -127,7 +127,7 @@ PinnedMemory::TransferToGPU(bool async)
 }
 
 void
-PinnedMemory::TransferToCPU(bool async)
+PinMemory::TransferToCPU(bool async)
 {
   if (device == Device::GPU && dirty) {
     Error::Check(
@@ -145,7 +145,7 @@ PinnedMemory::TransferToCPU(bool async)
 }
 
 std::size_t
-PinnedMemory::Size() const
+PinMemory::Size() const
 { return size; }
 
 // -------------------------------------------------------------------------- //

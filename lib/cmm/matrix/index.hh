@@ -21,6 +21,13 @@ class Indexer {
       size(0)
   {}
 
+  Indexer(const Indexer& rhs)
+    : sizes {rhs.sizes},
+      jumps {rhs.jumps},
+      size(rhs.size)
+  {
+  }
+
   template <typename... Args>
   Indexer(Args... args)
     : Indexer()
