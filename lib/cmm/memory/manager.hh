@@ -22,25 +22,25 @@ InstallDiscretizer(std::unique_ptr<Discretizer>&& discretizer);
 } // ns bit
 
 ///
-/// @struct PinnedMemorySegment
+/// @struct PinMemorySegment
 ///
-struct PinnedMemorySegment {
+struct PinMemorySegment {
   void* ptr_gpu;
   void* ptr_cpu;
 };
 
 ///
-/// @class PinnedMemorySegmentList
+/// @class PinMemorySegmentList
 ///
-class PinnedMemorySegmentList {
+class PinMemorySegmentList {
  public:
-  PinnedMemorySegmentList(std::size_t size);
+  PinMemorySegmentList(std::size_t size);
 
-  PinnedMemorySegmentList(PinnedMemorySegmentList&&);
-  PinnedMemorySegmentList&
-  operator=(PinnedMemorySegmentList&&);
+  PinMemorySegmentList(PinMemorySegmentList&&);
+  PinMemorySegmentList&
+  operator=(PinMemorySegmentList&&);
 
-  PinnedMemorySegment
+  PinMemorySegment
   Next();
 
   void
@@ -48,7 +48,7 @@ class PinnedMemorySegmentList {
 
  private:
   std::size_t size;
-  std::deque<PinnedMemorySegment> segments;
+  std::deque<PinMemorySegment> segments;
   std::mutex mutex;
 };
 
@@ -92,11 +92,11 @@ class MemoryManager {
   Install(std::unique_ptr<Discretizer>&& discretizer);
 
   // {
-  PinnedMemory
-  NewPinned(std::size_t bytes);
+  PinMemory
+  NewPin(std::size_t bytes);
 
   void
-  Free(PinnedMemory& memory);
+  Free(PinMemory& memory);
   // }
 
   // {
@@ -120,7 +120,7 @@ class MemoryManager {
     cudaStream_t stream;
   };
 
-  using PinMap = std::unordered_map<std::size_t, PinnedMemorySegmentList>;
+  using PinMap = std::unordered_map<std::size_t, PinMemorySegmentList>;
   PinMap     pin_memory;
   std::mutex pin_memory_lock;
 

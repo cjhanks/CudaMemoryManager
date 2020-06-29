@@ -31,18 +31,6 @@ class Error : public std::runtime_error {
   static void
   Throw(cudaError_t rc);
 };
-
-///
-/// @class Canary
-///
-/// A tiny class you can drop in to a function which checks and throws an
-/// exception from the destructor.  Exceptions thrown by this class are *not*
-/// meant to be caught.  This is a debugging tool.
-///
-class Canary {
- public:
-  ~Canary();
-};
 } // ns cmm
 
 #endif // CMM_ERROR_HH_

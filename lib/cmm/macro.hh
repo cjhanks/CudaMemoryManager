@@ -4,4 +4,12 @@
 #define cmm_likely(x)       __builtin_expect(!!(x), 1)
 #define cmm_unlikely(x)     __builtin_expect(!!(x), 0)
 
+#ifdef __CUDACC__
+  #define cmm_host    __host__
+  #define cmm_device  __device__
+#else
+  #define cmm_host
+  #define cmm_device
+#endif
+
 #endif // CMM_MACRO_HH_

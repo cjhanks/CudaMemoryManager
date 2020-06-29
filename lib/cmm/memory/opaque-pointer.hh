@@ -7,22 +7,22 @@ namespace cmm {
 class MemoryManager;
 
 ///
-/// @class PinnedMemory
+/// @class PinMemory
 ///
-class PinnedMemory {
+class PinMemory {
  public:
-  PinnedMemory();
-  PinnedMemory(std::size_t size);
-  ~PinnedMemory();
+  PinMemory();
+  PinMemory(std::size_t size);
+  ~PinMemory();
 
   /// {
-  PinnedMemory(PinnedMemory&& rhs);
-  PinnedMemory&
-  operator=(PinnedMemory&& rhs);
+  PinMemory(PinMemory&& rhs);
+  PinMemory&
+  operator=(PinMemory&& rhs);
 
-  PinnedMemory(const PinnedMemory&) = delete;
-  PinnedMemory&
-  operator=(const PinnedMemory&) = delete;
+  PinMemory(const PinMemory&) = delete;
+  PinMemory&
+  operator=(const PinMemory&) = delete;
   /// }
 
   /// {
@@ -64,7 +64,7 @@ class PinnedMemory {
   std::size_t size;
 
   friend class MemoryManager;
-  PinnedMemory(void* ptr_gpu, void* ptr_cpu, std::size_t size);
+  PinMemory(void* ptr_gpu, void* ptr_cpu, std::size_t size);
 };
 
 ///
