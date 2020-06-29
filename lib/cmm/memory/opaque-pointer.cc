@@ -20,7 +20,8 @@ PinnedMemory::PinnedMemory()
 PinnedMemory::PinnedMemory(std::size_t size)
   : PinnedMemory()
 {
-  *this = std::move(MemoryManager::Instance().NewPinned(size));
+  if (size)
+    *this = std::move(MemoryManager::Instance().NewPinned(size));
 }
 
 PinnedMemory::PinnedMemory(void* ptr_gpu, void* ptr_cpu, std::size_t size)
@@ -154,16 +155,17 @@ GpuMemory::GpuMemory()
     size(0)
 {}
 
+GpuMemory::GpuMemory(std::size_t size)
+  : GpuMemory()
+{
+  if (size)
+    *this = std::move(MemoryManager::Instance().NewGpu(size));
+}
+
 GpuMemory::~GpuMemory()
 {
   if (size)
     MemoryManager::Instance().Free(*this);
-}
-
-GpuMemory::GpuMemory(std::size_t size)
-  : GpuMemory()
-{
-  *this = std::move(MemoryManager::Instance().NewGpu(size));
 }
 
 GpuMemory::GpuMemory(GpuMemory&& rhs)

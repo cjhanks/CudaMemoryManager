@@ -75,9 +75,9 @@ class TypedPinnedMemoryArray : public PinnedMemory {
   PointerCPU()
   { return (Type*) PinnedMemory::PointerCPU(); }
 
-  //std::size_t
-  //Size() const
-  //{ return size; }
+  std::size_t
+  Size() const
+  { return size; }
 
  private:
   std::size_t size;
@@ -87,18 +87,30 @@ class TypedPinnedMemoryArray : public PinnedMemory {
 /// @class  TypedGpuMemory
 /// @tparam Type to store.
 ///
-//template <typename Type>
-//class TypedGpuMemoryArray : public GpuMemory {
-// public:
-//  TypedGpuMemoryArray()
-//    : GpuMemory() {}
-//
-//  TypedGpuMemoryArray(std::size_t size)
-//    : GpuMemory(sizeof(Type) * size) {}
-//
-// private:
-//  std::size_t size;
-//};
+template <typename Type>
+class TypedGpuMemoryArray : public GpuMemory {
+ public:
+  TypedGpuMemoryArray()
+    : GpuMemory() {}
+
+  TypedGpuMemoryArray(std::size_t size)
+    : GpuMemory(sizeof(Type) * size) {}
+
+  const Type*
+  PointerGPU() const
+  { return (const Type*) GpuMemory::PointerGPU(); }
+
+  Type*
+  PointerGPU()
+  { return (Type*) GpuMemory::PointerGPU(); }
+
+  std::size_t
+  Size() const
+  { return size; }
+
+ private:
+  std::size_t size;
+};
 } // ns cmm
 
 #endif // CMM_TYPED_POINTER_HH_

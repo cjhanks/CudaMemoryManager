@@ -6,7 +6,7 @@ if (${GTEST_FOUND})
   file(GLOB_RECURSE SOURCES_CU  *.cu)
 
   add_executable(test_cmm ${SOURCES_CC} ${SOURCES_CU})
-  target_link_libraries(test_cmm GTest::GTest GTest::Main cmm)
+  target_link_libraries(test_cmm GTest::GTest cmm)
   add_test(Tests test_cmm)
 endif()
 

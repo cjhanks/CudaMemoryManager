@@ -154,6 +154,7 @@ extern CERES_EXPORT std::set<LogSink *> log_sinks_global;
 
 inline void InitGoogleLogging(char *argv) {
   // Do nothing; this is ignored.
+  (void) argv;
 }
 
 // Note: the Log sink functions are not thread safe.
@@ -228,7 +229,7 @@ class CERES_EXPORT MessageLogger {
     char tid_cstr[24] = "";
     pid_t  pid = getpid();
     pthread_t tid = pthread_self();
-    sprintf(tid_cstr, "%d/%u ", pid, tid);
+    sprintf(tid_cstr, "%d/%lu ", pid, tid);
     if (severity_ == FATAL) {
         // Magenta color if fatal
         std::cerr << "\033[1;35m"<< tid_cstr << time_cstr << SeverityLabelStr() << stream_.str() << "\033[0m";
@@ -349,7 +350,7 @@ class CERES_EXPORT LoggerVoidify {
   LoggerVoidify() { }
   // This has to be an operator with a precedence lower than << but
   // higher than ?:
-  void operator&(const std::ostream &s) { }
+  void operator&(const std::ostream &s) { (void) s; }
 };
 
 // Log only if condition is met.  Otherwise evaluates to void.
