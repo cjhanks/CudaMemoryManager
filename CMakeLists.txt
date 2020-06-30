@@ -6,6 +6,17 @@
 cmake_minimum_required(VERSION 3.16)
 project(cmm LANGUAGES CXX CUDA)
 
+# The CMAKE cuda interface wants things to be static, but this is problematic.
+if (CMAKE_CUDA_HOST_IMPLICIT_LINK_LIBRARIES)
+ list(REMOVE_ITEM CMAKE_CUDA_HOST_LINK_LIBRARIES "cudart_static")
+ list(APPEND      CMAKE_CUDA_HOST_LINK_LIBRARIES "cudart")
+endif()
+if ( CMAKE_CUDA_IMPLICIT_LINK_LIBRARIES )
+  list(REMOVE_ITEM CMAKE_CUDA_IMPLICIT_LINK_LIBRARIES "cudart_static")
+  list(APPEND      CMAKE_CUDA_IMPLICIT_LINK_LIBRARIES "cudart")
+endif()
+
+
 # ---------------------------------------------------------------------------- #
 # All C++ compilation options for all programs.
 # ---------------------------------------------------------------------------- #
