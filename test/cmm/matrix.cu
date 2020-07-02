@@ -221,3 +221,51 @@ TEST(MatrixCU, Pointwise) {
     ASSERT_EQ(ret.At(n), 50);
   }
 }
+
+TEST(MatrixCU, PointwiseInPlace) {
+  cmm::PinVector<unsigned> a0(100);
+  cmm::PinVector<unsigned> a1(100);
+
+  a0 = 2;
+  a1 = 100;
+
+  // Add
+  a0.Memory().TransferToGPU();
+  a0 += a1;
+  a0.Memory().TransferToCPU();
+
+  ASSERT_EQ(a0.Size(), 100);
+  for (std::size_t n = 0; n < a0.Size(); ++n) {
+    ASSERT_EQ(a0.At(n), 102);
+  }
+
+  // Sub
+  a0.Memory().TransferToGPU();
+  a0 -= a1;
+  a0.Memory().TransferToCPU();
+
+  ASSERT_EQ(a0.Size(), 100);
+  for (std::size_t n = 0; n < a0.Size(); ++n) {
+    ASSERT_EQ(a0.At(n), 2);
+  }
+
+  // Mul
+  a0.Memory().TransferToGPU();
+  a0 *= a1;
+  a0.Memory().TransferToCPU();
+
+  ASSERT_EQ(a0.Size(), 100);
+  for (std::size_t n = 0; n < a0.Size(); ++n) {
+    ASSERT_EQ(a0.At(n), 200);
+  }
+
+  // Div
+  a0.Memory().TransferToGPU();
+  a0 /= a1;
+  a0.Memory().TransferToCPU();
+
+  ASSERT_EQ(a0.Size(), 100);
+  for (std::size_t n = 0; n < a0.Size(); ++n) {
+    ASSERT_EQ(a0.At(n), 2);
+  }
+}
