@@ -3,6 +3,8 @@
 
 #include "cmm/memory.hh"
 #include "cmm/matrix/matrix-broadcast.hh"
+#include "cmm/tools/schedule.hh"
+#include "cmm/tools/stream.hh"
 
 namespace cmm {
 ///
@@ -75,12 +77,41 @@ class Matrix {
   Size(std::size_t index) const
   { return indexer.Size(index); }
 
+#if __CUDACC__
   template <typename Operation, typename RhsType>
-  void
+  Self
   GpuBroadcast(Operation, RhsType value)
   {
     auto rhs = ShapedLike(*this);
+    auto sched = Schedule1D::MaxThreads(Size());
+    cmm::bit::BroadcastIntoRet<Operation, Type, RhsType>
+        <<<sched.B(),
+           sched.T(),
+           0,
+           Stream::This()>>>(
+        Size(),
+        rhs.Memory().PointerGPU(),
+        this->Memory().PointerGPU(),
+        value
+    );
   }
+
+  template <typename Operation, typename RhsType>
+  void
+  GpuBroadcastInPlace(Operation, RhsType value)
+  {
+    auto sched = Schedule1D::MaxThreads(Size());
+    cmm::bit::BroadcastInPlace<Operation, Type, RhsType>
+        <<<sched.B(),
+           sched.T(),
+           0,
+           Stream::This()>>>(
+        Size(),
+        this->Memory().PointerGPU(),
+        value
+    );
+  }
+#endif
 
   Indexer<Dims>
   GetIndexer() const
@@ -97,11 +128,17 @@ class Matrix {
 template <typename Type, std::size_t Dims>
 using PinMatrix = Matrix<Type, Dims, TypedPinMemoryArray<Type>>;
 
+template <typename Type>
+using PinVector = PinMatrix<Type, 1>;
+
 ///
 /// Alias for the GPU memory type.
 ///
 template <typename Type, std::size_t Dims>
 using GpuMatrix = Matrix<Type, Dims, TypedGpuMemoryArray<Type>>;
+
+template <typename Type>
+using GpuVector = GpuMatrix<Type, 1>;
 } // ns cmm
 
 #endif // CMM_MATRIX_MATRIX_HH_

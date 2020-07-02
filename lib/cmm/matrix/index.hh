@@ -22,10 +22,12 @@ class Indexer {
   {}
 
   Indexer(const Indexer& rhs)
-    : sizes {rhs.sizes},
-      jumps {rhs.jumps},
-      size(rhs.size)
+    : size(rhs.size)
   {
+    for (std::size_t n = 0; n < Dims; ++n) {
+      sizes[n] = rhs.sizes[n];
+      jumps[n] = rhs.jumps[n];
+    }
   }
 
   template <typename... Args>
