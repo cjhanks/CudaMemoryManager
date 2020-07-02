@@ -176,3 +176,48 @@ TEST(MatrixCU, BroadcastNormalConvention) {
     ASSERT_EQ(pr.At(n), 12);
   }
 }
+
+TEST(MatrixCU, Pointwise) {
+  cmm::PinVector<unsigned> a0(100);
+  cmm::PinVector<unsigned> a1(100);
+  cmm::PinVector<unsigned> ret;
+
+  a0 = 2;
+  a1 = 100;
+
+  // Add
+  ret = (a0 + a1);
+  ret.Memory().TransferToCPU();
+
+  ASSERT_EQ(ret.Size(), 100);
+  for (std::size_t n = 0; n < ret.Size(); ++n) {
+    ASSERT_EQ(ret.At(n), 102);
+  }
+
+  // Sub
+  ret = (a1 - a0);
+  ret.Memory().TransferToCPU();
+
+  ASSERT_EQ(ret.Size(), 100);
+  for (std::size_t n = 0; n < ret.Size(); ++n) {
+    ASSERT_EQ(ret.At(n), 98);
+  }
+
+  // Mul
+  ret = (a1 * a0);
+  ret.Memory().TransferToCPU();
+
+  ASSERT_EQ(ret.Size(), 100);
+  for (std::size_t n = 0; n < ret.Size(); ++n) {
+    ASSERT_EQ(ret.At(n), 200);
+  }
+
+  // Div
+  ret = (a1 / a0);
+  ret.Memory().TransferToCPU();
+
+  ASSERT_EQ(ret.Size(), 100);
+  for (std::size_t n = 0; n < ret.Size(); ++n) {
+    ASSERT_EQ(ret.At(n), 50);
+  }
+}

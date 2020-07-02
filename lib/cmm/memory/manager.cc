@@ -3,6 +3,7 @@
 #include <functional>
 
 #include "cmm/tools/error.hh"
+#include "cmm/tools/scope.hh"
 #include "cmm/tools/stream.hh"
 
 #include "cmm/logging.hh"
@@ -219,6 +220,7 @@ MemoryManager::Loop()
 
     // Return memory to the pool.
     for (auto& record: record_map) {
+      Canary canary;
       auto& list = record.second;
       while (list.size()
           && list.front().event.IsComplete()) {
