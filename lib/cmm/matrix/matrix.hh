@@ -3,8 +3,10 @@
 
 #include "cmm/memory.hh"
 #include "cmm/matrix/matrix-broadcast.hh"
+#include "cmm/tools/scope.hh"
 #include "cmm/tools/schedule.hh"
 #include "cmm/tools/stream.hh"
+
 
 namespace cmm {
 ///
@@ -69,6 +71,10 @@ class Matrix {
   Memory()
   { return memory; }
 
+  const MemoryArray&
+  Memory() const
+  { return memory; }
+
   std::size_t
   Size() const
   { return indexer.Size(); }
@@ -78,10 +84,12 @@ class Matrix {
   { return indexer.Size(index); }
 
 #if __CUDACC__
+  // {
   template <typename Operation, typename RhsType>
   Self
   GpuBroadcast(Operation, RhsType value)
   {
+    Canary canary;
     auto rhs = ShapedLike(*this);
     auto sched = Schedule1D::MaxThreads(Size());
     cmm::bit::BroadcastIntoRet<Operation, Type, RhsType>
@@ -117,11 +125,14 @@ class Matrix {
   Self
   operator/(const RhsType& value)
   { return this->GpuBroadcast(cmm::BroadcastDiv<RhsType>(), value); }
+  // }
 
+  // {
   template <typename Operation, typename RhsType>
   void
   GpuBroadcastInPlace(Operation, RhsType value)
   {
+    Canary canary;
     auto sched = Schedule1D::MaxThreads(Size());
     cmm::bit::BroadcastInPlace<Operation, Type, RhsType>
         <<<sched.B(),
@@ -173,6 +184,68 @@ class Matrix {
     this->GpuBroadcastInPlace(cmm::BroadcastDiv<RhsType>(), value);
     return *this;
   }
+  // }
+
+  // {
+  template <typename Operation, typename RhsType, typename Mem>
+  Self
+  GpuPointwise(Operation, const Matrix<RhsType, Dims, Mem>& rhs)
+  {
+    Canary canary;
+    auto ret = ShapedLike(*this);
+    auto sched = Schedule1D::MaxThreads(Size());
+    cmm::bit::OperatePointwise<Operation, Type, RhsType>
+        <<<sched.B(),
+           sched.T(),
+           0,
+           Stream::This()>>>(
+        Size(),
+        ret.Memory().PointerGPU(),
+        this->Memory().PointerGPU(),
+        rhs.Memory().PointerGPU()
+    );
+
+    return ret;
+  }
+
+  template <typename RhsType, typename Mem>
+  Self
+  operator+(const Matrix<RhsType, Dims, Mem>& rhs)
+  { return this->GpuPointwise(cmm::BroadcastAdd<RhsType>(), rhs); }
+
+  template <typename RhsType, typename Mem>
+  Self
+  operator-(const Matrix<RhsType, Dims, Mem>& rhs)
+  { return this->GpuPointwise(cmm::BroadcastSub<RhsType>(), rhs); }
+
+  template <typename RhsType, typename Mem>
+  Self
+  operator*(const Matrix<RhsType, Dims, Mem>& rhs)
+  { return this->GpuPointwise(cmm::BroadcastMul<RhsType>(), rhs); }
+
+  template <typename RhsType, typename Mem>
+  Self
+  operator/(const Matrix<RhsType, Dims, Mem>& rhs)
+  { return this->GpuPointwise(cmm::BroadcastDiv<RhsType>(), rhs); }
+
+#if 0
+  template <typename RhsType>
+  Self
+  operator-(const RhsType& value)
+  { return this->GpuBroadcast(cmm::BroadcastSub<RhsType>(), value); }
+
+  template <typename RhsType>
+  Self
+  operator*(const RhsType& value)
+  { return this->GpuBroadcast(cmm::BroadcastMul<RhsType>(), value); }
+
+  template <typename RhsType>
+  Self
+  operator/(const RhsType& value)
+  { return this->GpuBroadcast(cmm::BroadcastDiv<RhsType>(), value); }
+#endif
+  // }
+
 #endif
 
   Indexer<Dims>

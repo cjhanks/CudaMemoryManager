@@ -79,7 +79,7 @@ template <typename Broadcast, typename TypeLhs, typename TypeRhs>
 cmm_global
 void
 OperatePointwise(
-    std::size_t size, TypeLhs* ret, TypeLhs* lhs, TypeRhs* rhs)
+    std::size_t size, TypeLhs* ret, const TypeLhs* lhs, const TypeRhs* rhs)
 {
   unsigned idx = blockIdx.x * blockDim.x + threadIdx.x;
   if (idx < size)
