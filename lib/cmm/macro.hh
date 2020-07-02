@@ -7,9 +7,11 @@
 #ifdef __CUDACC__
   #define cmm_host    __host__
   #define cmm_device  __device__
+  #define cmm_global  __global__
 #else
   #define cmm_host
   #define cmm_device
+  #define cmm_global
 #endif
 
 #endif // CMM_MACRO_HH_
