@@ -94,7 +94,29 @@ class Matrix {
         this->Memory().PointerGPU(),
         value
     );
+
+    return rhs;
   }
+
+  template <typename RhsType>
+  Self
+  operator+(const RhsType& value)
+  { return this->GpuBroadcast(cmm::BroadcastAdd<RhsType>(), value); }
+
+  template <typename RhsType>
+  Self
+  operator-(const RhsType& value)
+  { return this->GpuBroadcast(cmm::BroadcastSub<RhsType>(), value); }
+
+  template <typename RhsType>
+  Self
+  operator*(const RhsType& value)
+  { return this->GpuBroadcast(cmm::BroadcastMul<RhsType>(), value); }
+
+  template <typename RhsType>
+  Self
+  operator/(const RhsType& value)
+  { return this->GpuBroadcast(cmm::BroadcastDiv<RhsType>(), value); }
 
   template <typename Operation, typename RhsType>
   void
@@ -110,6 +132,46 @@ class Matrix {
         this->Memory().PointerGPU(),
         value
     );
+  }
+
+  template <typename RhsType>
+  Self&
+  operator=(const RhsType& value)
+  {
+    this->GpuBroadcastInPlace(cmm::BroadcastEqu<RhsType>(), value);
+    return *this;
+  }
+
+  template <typename RhsType>
+  Self&
+  operator+=(const RhsType& value)
+  {
+    this->GpuBroadcastInPlace(cmm::BroadcastAdd<RhsType>(), value);
+    return *this;
+  }
+
+  template <typename RhsType>
+  Self&
+  operator-=(const RhsType& value)
+  {
+    this->GpuBroadcastInPlace(cmm::BroadcastSub<RhsType>(), value);
+    return *this;
+  }
+
+  template <typename RhsType>
+  Self&
+  operator*=(const RhsType& value)
+  {
+    this->GpuBroadcastInPlace(cmm::BroadcastMul<RhsType>(), value);
+    return *this;
+  }
+
+  template <typename RhsType>
+  Self&
+  operator/=(const RhsType& value)
+  {
+    this->GpuBroadcastInPlace(cmm::BroadcastDiv<RhsType>(), value);
+    return *this;
   }
 #endif
 

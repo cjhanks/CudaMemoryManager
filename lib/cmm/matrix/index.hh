@@ -47,6 +47,16 @@ class Indexer {
     size = jump;
   }
 
+  bool
+  operator==(const Indexer& rhs) const
+  {
+    for (std::size_t n = 0; n < Dims; ++n)
+      if (Size(n) !=  rhs.Size(n))
+        return false;
+
+    return true;
+  }
+
   std::size_t
   Size() const
   { return size; }
