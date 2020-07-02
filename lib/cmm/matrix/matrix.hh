@@ -227,23 +227,48 @@ class Matrix {
   Self
   operator/(const Matrix<RhsType, Dims, Mem>& rhs)
   { return this->GpuPointwise(cmm::BroadcastDiv<RhsType>(), rhs); }
+  // }
 
-#if 0
-  template <typename RhsType>
-  Self
-  operator-(const RhsType& value)
-  { return this->GpuBroadcast(cmm::BroadcastSub<RhsType>(), value); }
+  // {
+  template <typename Operation, typename RhsType, typename Mem>
+  Self&
+  GpuPointwiseInPlace(Operation, const Matrix<RhsType, Dims, Mem>& rhs)
+  {
+    Canary canary;
+    auto sched = Schedule1D::MaxThreads(Size());
+    cmm::bit::OperatePointwise<Operation, Type, RhsType>
+        <<<sched.B(),
+           sched.T(),
+           0,
+           Stream::This()>>>(
+        Size(),
+        this->Memory().PointerGPU(),
+        this->Memory().PointerGPU(),
+        rhs.Memory().PointerGPU()
+    );
 
-  template <typename RhsType>
-  Self
-  operator*(const RhsType& value)
-  { return this->GpuBroadcast(cmm::BroadcastMul<RhsType>(), value); }
+    return *this;
+  }
 
-  template <typename RhsType>
-  Self
-  operator/(const RhsType& value)
-  { return this->GpuBroadcast(cmm::BroadcastDiv<RhsType>(), value); }
-#endif
+  template <typename RhsType, typename Mem>
+  Self&
+  operator+=(const Matrix<RhsType, Dims, Mem>& rhs)
+  { return this->GpuPointwiseInPlace(cmm::BroadcastAdd<RhsType>(), rhs); }
+
+  template <typename RhsType, typename Mem>
+  Self&
+  operator-=(const Matrix<RhsType, Dims, Mem>& rhs)
+  { return this->GpuPointwiseInPlace(cmm::BroadcastSub<RhsType>(), rhs); }
+
+  template <typename RhsType, typename Mem>
+  Self&
+  operator*=(const Matrix<RhsType, Dims, Mem>& rhs)
+  { return this->GpuPointwiseInPlace(cmm::BroadcastMul<RhsType>(), rhs); }
+
+  template <typename RhsType, typename Mem>
+  Self&
+  operator/=(const Matrix<RhsType, Dims, Mem>& rhs)
+  { return this->GpuPointwiseInPlace(cmm::BroadcastDiv<RhsType>(), rhs); }
   // }
 
 #endif
