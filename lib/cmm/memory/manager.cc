@@ -94,7 +94,7 @@ PinMemorySegmentList::Return(void* ptr_gpu, void* ptr_cpu)
   std::lock_guard<std::mutex> lock(mutex);
   segments.emplace_back(
       (PinMemorySegment) {.ptr_gpu = ptr_gpu,
-                             .ptr_cpu = ptr_cpu}
+                          .ptr_cpu = ptr_cpu}
   );
 }
 
