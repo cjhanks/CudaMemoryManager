@@ -274,6 +274,9 @@ TEST(MatrixCU, Mat2D_FullTest) {
   // - Initialize
   cmm::PinMatrix<double, 2> a0(1024, 512);
   cmm::PinMatrix<double, 2> a1(1024, 512);
+  cmm::GpuMatrix<double, 2> a4(1024, 512);
+
+  a4 = 100.0;
 
   for (std::size_t i = 0; i < a0.Size(0); ++i) {
     for (std::size_t j = 0; j < a0.Size(1); ++j) {
@@ -289,7 +292,8 @@ TEST(MatrixCU, Mat2D_FullTest) {
   auto a2 = a0 + 32.0;
 
   a1 /= a2;
-  a2  = a0 * a1;
+  a4 += a1;
+  a2  = a0 * a1 - a4;
   a0 += a1 - a2;
 
   auto a3 = (a0 += 4.0) - a1;
@@ -299,6 +303,9 @@ TEST(MatrixCU, Mat2D_FullTest) {
   a2.Memory().TransferToCPU();
   a3.Memory().TransferToCPU();
 
+  ASSERT_EQ(a0.Size(0), 1024);
+  ASSERT_EQ(a0.Size(1),  512);
+
   for (std::size_t i = 0; i < a0.Size(0); ++i) {
     for (std::size_t j = 0; j < a0.Size(1); ++j) {
       double a0_ = i + j;
@@ -306,7 +313,8 @@ TEST(MatrixCU, Mat2D_FullTest) {
       double a2_ = a0_ + 32.0;
 
       a1_ /= a2_;
-      a2_  = a0_ * a1_;
+      double a4_ = 100.0 + a1_;
+      a2_  = a0_ * a1_ - a4_;
       a0_ += a1_ - a2_;
 
       double a3_ = (a0_ += 4.0) - a1_;
