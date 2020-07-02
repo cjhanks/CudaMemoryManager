@@ -35,6 +35,14 @@ class Matrix {
       memory(indexer.Size())
   {}
 
+  Matrix(const Matrix& rhs) = delete;
+  Matrix&
+  operator=(const Matrix& rhs) = delete;
+
+  Matrix(Matrix&& rhs) = default;
+  Matrix&
+  operator=(Matrix&& rhs) = default;
+
   template <typename... Args>
   Matrix(Args... args)
     : indexer(args...),
@@ -91,7 +99,7 @@ class Matrix {
   {
     Canary canary;
     auto rhs = ShapedLike(*this);
-    auto sched = Schedule1D::MaxThreads(Size());
+    auto sched = Schedule1D::MinThreads(Size());
     cmm::bit::BroadcastIntoRet<Operation, Type, RhsType>
         <<<sched.B(),
            sched.T(),
@@ -133,7 +141,7 @@ class Matrix {
   GpuBroadcastInPlace(Operation, RhsType value)
   {
     Canary canary;
-    auto sched = Schedule1D::MaxThreads(Size());
+    auto sched = Schedule1D::MinThreads(Size());
     cmm::bit::BroadcastInPlace<Operation, Type, RhsType>
         <<<sched.B(),
            sched.T(),
@@ -193,7 +201,7 @@ class Matrix {
   {
     Canary canary;
     auto ret = ShapedLike(*this);
-    auto sched = Schedule1D::MaxThreads(Size());
+    auto sched = Schedule1D::MinThreads(Size());
     cmm::bit::OperatePointwise<Operation, Type, RhsType>
         <<<sched.B(),
            sched.T(),
@@ -235,7 +243,7 @@ class Matrix {
   GpuPointwiseInPlace(Operation, const Matrix<RhsType, Dims, Mem>& rhs)
   {
     Canary canary;
-    auto sched = Schedule1D::MaxThreads(Size());
+    auto sched = Schedule1D::MinThreads(Size());
     cmm::bit::OperatePointwise<Operation, Type, RhsType>
         <<<sched.B(),
            sched.T(),
