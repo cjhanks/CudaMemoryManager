@@ -20,9 +20,6 @@ class StreamEvent {
   StreamEvent();
   ~StreamEvent();
 
-  std::uint64_t
-  Id() const;
-
   // {
   StreamEvent(const StreamEvent&) = delete;
   StreamEvent&
@@ -41,6 +38,12 @@ class StreamEvent {
   ///
   bool
   IsComplete() const;
+
+  ///
+  /// This is a debug mechanism primarily used for tracking event history.
+  ///
+  std::uint64_t
+  Id() const;
 
  private:
   cudaEvent_t event;
