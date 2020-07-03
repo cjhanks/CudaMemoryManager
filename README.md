@@ -1,4 +1,6 @@
-# <u>C</u>uda <u>M</u>y <u>M</u>isery
+# Cuda My Misery
+
+*And fwiw - I think the CUDA team has done a great job.*
 
 ## Quickstart
 
