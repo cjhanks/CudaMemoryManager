@@ -1,8 +1,8 @@
 ---
-name: Unit Test
+name: Feature
 about: Let's build it.
-title: 'Unit Test: '
-labels: Testing
+title: 'Feature: '
+labels: Feature
 assignees: cjhanks
 
 ---
