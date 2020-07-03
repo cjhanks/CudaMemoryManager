@@ -2,6 +2,9 @@
 
 *And fwiw - I think the CUDA team has done a great job.*
 
+This library is being developed as the basis for an [audio processing library](https://github.com/cjhanks/cmm-audio),
+but it is also a great opportunity to learn the less treaded path.
+
 ## Quickstart
 
 ```
