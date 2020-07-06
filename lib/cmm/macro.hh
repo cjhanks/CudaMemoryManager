@@ -8,10 +8,12 @@
   #define cmm_host    __host__
   #define cmm_device  __device__
   #define cmm_global  __global__
+  #define cmm_method  cmm_host cmm_device
 #else
   #define cmm_host
   #define cmm_device
   #define cmm_global
+  #define cmm_method  cmm_host cmm_device
 #endif
 
 #endif // CMM_MACRO_HH_
