@@ -51,6 +51,14 @@ class Complex {
   cmm_method
   operator typename Cuda::Type() const
   { return data; }
+
+  operator std::complex<Type>() const
+  { return std::complex<Type>(real(), imag()); }
+
+  template <typename NewType>
+  Complex<NewType>
+  Cast()
+  { return Complex<NewType>(real(), imag()); }
   /// }
 
   /// {
@@ -79,22 +87,34 @@ class Complex {
   cmm_method
   Self&
   operator+=(const Self& rhs)
-  { data = Cuda::add(data, rhs.data); }
+  {
+    data = Cuda::add(data, rhs.data);
+    return *this;
+  }
 
   cmm_method
   Self&
   operator-=(const Self& rhs)
-  { data = Cuda::sub(data, rhs.data); }
+  {
+    data = Cuda::sub(data, rhs.data);
+    return *this;
+  }
 
   cmm_method
   Self&
   operator*=(const Self& rhs)
-  { data = Cuda::mul(data, rhs.data); }
+  {
+    data = Cuda::mul(data, rhs.data);
+    return *this;
+  }
 
   cmm_method
   Self&
   operator/=(const Self& rhs)
-  { data = Cuda::div(data, rhs.data); }
+  {
+    data = Cuda::div(data, rhs.data);
+    return *this;
+  }
 
   cmm_method
   Self
@@ -211,8 +231,14 @@ log(const Complex<Type>& data)
 template <typename Type>
 cmm_method
 Complex<Type>
+logN(const Complex<Type>& data, Type n)
+{ return log(data) / std::log(Type(n)); }
+
+template <typename Type>
+cmm_method
+Complex<Type>
 log10(const Complex<Type>& data)
-{ return log(data) / std::log(Type(10)); }
+{ return LogN(data, Type(10)); }
 } // ns cmm
 
 #endif // CMM_COMPLEX_HH_
