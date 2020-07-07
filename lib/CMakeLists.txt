@@ -3,3 +3,12 @@ file(GLOB_RECURSE SOURCES_CU  *.cu)
 file(GLOB_RECURSE SOURCES_HH  *.hh)
 
 add_library(cmm SHARED ${SOURCES_CC} ${SOURCES_CU} ${SOURCES_HH})
+
+install(TARGETS cmm
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+        COMPONENT cmm)
+
+install(DIRECTORY ./cmm
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/include
+        COMPONENT cmmdev
+        FILES_MATCHING PATTERN "*.hh")

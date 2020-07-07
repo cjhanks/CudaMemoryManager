@@ -16,7 +16,6 @@ if ( CMAKE_CUDA_IMPLICIT_LINK_LIBRARIES )
   list(APPEND      CMAKE_CUDA_IMPLICIT_LINK_LIBRARIES "cudart")
 endif()
 
-
 # ---------------------------------------------------------------------------- #
 # All C++ compilation options for all programs.
 # ---------------------------------------------------------------------------- #
@@ -38,6 +37,8 @@ else()
          "-O0 "
          )
 endif()
+
+include(deb.cmakelists)
 
 # ---------------------------------------------------------------------------- #
 # Build in this order:
