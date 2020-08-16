@@ -3,7 +3,6 @@ using SampleVector = Vec<complex<double>>;
 
 class ToneGenerator {
  public:
-
   virtual SampleVector
   Next() = 0;
 
@@ -14,7 +13,9 @@ class ToneGenerator {
   More() = 0;
 };
 
+///
 /// A constant unchanging tone.
+///
 class ConstantTone : public ToneGenerator {
  public:
   struct Type1 {
@@ -27,6 +28,8 @@ class ConstantTone : public ToneGenerator {
 
   static ToneGenerator*
   Create(DigitalSpecification digispec, Type1 tone);
+
+ private:
 };
 
 ///
