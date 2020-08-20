@@ -1,4 +1,4 @@
-# Cuda Music Magic
+# Cuda Music Magic ![BlueDuck](http://cjhanks.name/blueduck.png)
 
 This is the future home of a CUDA based audio processing library.
 
